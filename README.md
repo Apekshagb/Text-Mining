@@ -1,1 +1,3 @@
-# Text-Mining
+Provided with a huge list of documents, where each documents represents a scholarly paper based on the topic of research, how would be classify the documents based on a provided category.
+
+Aim of this project is to design a system that would process the data and classify the documents based on the text analysis i.e. just by reviewing the abstract of any document the system should be able to project results stating under which classification or cluster that particular document has to be placed. This is achieved by parsing the data for provided dataset, fetch the frequency of occurrence for each text within each document. Then perform a dimensionality reduction over the frequency matrix in order to derive a matrix of lesser dimension, and then perform the clustering operation which would cluster the documents based on the functionalities/features derived.
