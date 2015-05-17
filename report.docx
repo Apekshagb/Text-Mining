@@ -1,0 +1,55 @@
+Text Mining
+Apeksha Barhanpur
+Department of Computer Science 
+Old Dominion University
+
+Background
+
+Classifying a document or any form of information by human based on a list of functionalities is an easy approach when compared to anything else. We would like to extra some structured information and understand what that information is trying to project, but this approach might consume huge amount of time which is being impacted based on the size of the document. From decades the computational community has viewed large text collection as a resource to produce better text analysis algorithms, hence we require a system that will overcome the above drawbacks and provide us a refine result on document classification or text categorization.
+Text mining (Text Mining, 2015), referred to as text analytics refers to the process of deriving high-quality  information from text. Text mining usually involves the process of structuring the input text, deriving patterns within the structured data, and finally evaluation and interpretation of the output. This approach is widely been used in information retrieval, to study word frequency distributions, pattern recognition, tagging/annotation, information extraction, data mining techniques, visualization and predictive analysis.
+	
+Problem Description
+
+Provided with a huge list of documents, where each documents represents a scholarly paper based on the topic of research, how would be classify the documents based on a provided category.
+
+Aim of this project is to design a system that would process the data and classify the documents based on the text analysis i.e. just by reviewing the abstract of any document the system should be able to project results stating under which classification or cluster that particular document has to be placed. This is achieved by parsing the data for provided dataset, fetch the frequency of occurrence for each text within each document. Then perform a dimensionality reduction over the frequency matrix in order to derive a matrix of lesser dimension, and then perform the clustering operation which would cluster the documents based on the functionalities/features derived.
+Data and Data Parsing
+
+Initial data for the system will be a list of documents, the list mainly comprises of research papers that will provide us the information through two sections i.e. through abstract and full-text. 
+The first step in analyzing the text data is to preprocess it, we need to parse the data to fetch the frequency of each word within the documents. The data has to be meaningful and appropriate to perform the analysis and produce the required results, therefore based on the problem structure we can perform the clustering only if we have the frequency of words which will help us to define the features for the clusters. 
+ 
+Figure 1. Input file which provides the frequency of words (Term_ID) for each document
+The document with frequency count for each word was provided to me as my initial input file Figure 1. Input file which provides the frequency of words (Term_ID) for each document, we have to now generate a matrix for this frequency count. 
+The matrix is been generated through a Matlab program, which reads the input file and assigns each words as an item and document as an attribute of the matrix.
+Following is the code for parsing the input file and generating the frequency matrix:
+filename = [num2str(fnames(i,1)),'-',num2str(fnames(i,2)),'-',num2str(fnames(i,3)),'-',num2str(fnames(i,4))];
+idx = find(strcmp(raw_fulltext(:,4),filename)==1);
+A_fulltext(cell2mat(raw_fulltext(idx,1)),i) = cell2mat(raw_fulltext(idx,3));
+
+idx = find(strcmp(raw_abstract(:,4),filename)==1);
+
+A_abstract(cell2mat(raw_abstract(idx,1)),i) = cell2mat(raw_abstract(idx,3));
+
+Where filename will holds the values for a particular row from the input file and it the converts the integer values into a string value, A_fulltext and A_abstract are the two new frequency matrix generated from the given input file.
+ 
+Figure 2. Frequency Matrix where the rows represent the number of words and column represent the document
+Dimensionality Reduction and Approach
+
+Dimensionality reduction is the process of reducing the total number of random variables under consideration and can be divided into feature selection and feature extraction. Features here will be those based on which our system would cluster the documents. There are number of techniques to perform the dimensionality reduction on a given matrix, but we would be using Principal Component Analysis (PCA) to perform this technique.
+Principal Component Analysis (PCA) is a statistical procedure that uses a linear transformation to convert a set of observations of possibly correlated variables into a set of values of linearly uncorrelated variable called principal components. The number of principal components is less than or equal to the number of original variables. This transformation is defined in such a way that the first principal component has the largest possible variance (accounts for as much of the variability i.e. principal component with higher feature selection). We now perform PCA over the frequency matrix in order to achieve the principal components. 
+[coeff,score,latent] = pca(A_fulltext);
+
+[coeff,score,latent] = pca(A_abstract);
+
+The above code performs PCA over both frequency matrix, where it results into three matrixes i.e. the coefficient matrix, score matrix and latent matrix. Coefficient matrix represents the eigen value matrix which will considers each document as one vector i.e. it returns the number of principal components derived for the input matrix. Latent matrix return the principal component variances, it basically returns the rankings for all the eigen vectors that provide the higher variances of the feature selection. Score returns the normalized frequency matrix for the input matrix.
+
+We now have the principal components, but that is not the final result for dimensionality reduction. We have to multiple the co-efficient matrix with the input matrix in order to achieve the dimensionally reduced matrix. As the co-efficient matrix represents all the principal components, have to consider few top principal components (2, 3, 5, 10 etc.) because we would like to reduce the input matrix based on these components (feature selection) in order to achieve the desired results for text analysis.
+dimensionalReducedMatrix = A_fulltext * coeff(:,1:2); 
+dimensionalReducedMatrix = A_abstract * coeff(:,1:2); 
+Observe that we pick the first 2 principal components (eigen vectors) and reduce the input matrix, this would classify the word based on these top 2 eigen vectors (feature selection). 
+ 
+Now we have to cluster this reduced data based on their feature selection, we make use of k-means clustering algorithm to categorize of data. K-means clustering is a method of vector quantization, it aims at partition n observations into k clusters in which each observation belongs to the cluster with the nearest mean which serves as a prototype of the cluster.
+Following is the code for k-means clustering:
+[id,C,sumd] = kmeans(resMat,3)
+Where the “id” returns the cluster indices i.e. state the cluster id for the observations, the observation is then part of stated cluster.
+ 
